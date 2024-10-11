@@ -3,14 +3,17 @@
 """Simple Hello, World example with PyQt6."""
 
 import sys
+import os
 import subprocess
 import threading
 import keyboard
 import time
 import json
+import copy
+import shutil
 
 
-# 1. Import QApplication and all the required widgets
+
 from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QWidget, QLineEdit, QPushButton, QMenu
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
@@ -22,6 +25,19 @@ from PyQt6.QtWidgets import (
 )
 
 
+#### CONSTANTS ####
+###################
+
+## Paths
+local_app_data = os.getenv('LOCALAPPDATA')
+settingsDirPath = os.path.join(local_app_data, 'Microsoft', 'PowerToys', 'Keyboard Manager')
+
+# originalFile = "$settingsFolderPath\default.json"
+# backupFile = "$settingsFolderPath\default_old.json"
+# newFile = "$settingsFolderPath\default.json"
+
+
+## Data
 key_codes = {
     "backspace": 8,
     "tab": 9,
@@ -174,13 +190,33 @@ key_codes = {
     "right alt": 165,
 }
 
-# 2. Create an instance of QApplication
-app = QApplication([])
 
-## Fixed window size
+initialData = {
+            "remapKeys": {
+                "inProcess": []
+            },
+            "remapKeysToText": {
+                "inProcess": []
+            },
+            "remapShortcuts": {
+                "global": [],
+                "appSpecific": []
+            },
+            "remapShortcutsToText": {
+                "global": [],
+                "appSpecific": []
+            }
+        }
+
+
+## Fixed GUI elements sizes
 WINDOW_SIZE = 600
 DISPLAY_CONSOLE_HEIGHT = 50
 BASIC_BUTTONS_HEIGHT = 40
+
+# Create instance QApplication
+app = QApplication([])
+
 
 class Wc3RemapWindow(QMainWindow):
 
@@ -192,6 +228,9 @@ class Wc3RemapWindow(QMainWindow):
 
         # self.setFixedSize(WINDOW_SIZE, WINDOW_SIZE)
         self.adjustSize()
+
+        ## Data
+        self.data = copy.deepcopy(initialData)
 
         ## Layout Setup
         self.wc3AppLayout = QGridLayout()
@@ -208,11 +247,12 @@ class Wc3RemapWindow(QMainWindow):
         ## Creating GUI 
         self._createConsoleDisplay()
         self._createInstallPowerToysButton()
+        self._createCaptureInputButton()
         self._createApplyChangesButton()
-        self._createChangeButtonMapButton()
         self._createRevertChangesButton()
         self._createStopRecordingButton()
-        self._createTestButton()
+        self._createStageChangesButton()
+        # self._createTestButton()
         # self._createSaveCombinationButton()
 
 
@@ -246,16 +286,35 @@ class Wc3RemapWindow(QMainWindow):
         self.wc3AppLayout.addWidget(self.installPowerToysButton, 1, 0)
         self.installPowerToysButton.clicked.connect(self._installPowerToys)
     
-    def _createApplyChangesButton(self):
-        self.applyChangesButton = QPushButton("Capture Buttons")
-        self.applyChangesButton.setFixedHeight(BASIC_BUTTONS_HEIGHT)
-        self.wc3AppLayout.addWidget(self.applyChangesButton, 1, 1)
-        self.applyChangesButton.clicked.connect(self._startKeyCapture)
+    def _createCaptureInputButton(self):
+        self.captureInputsButton = QPushButton("Capture Input")
+        self.captureInputsButton.setFixedHeight(BASIC_BUTTONS_HEIGHT)
+        self.wc3AppLayout.addWidget(self.captureInputsButton, 1, 1)
+        self.captureInputsButton.clicked.connect(self._startKeyCapture)
     
-    def _createChangeButtonMapButton(self):
-        self.changeButtonMap = QPushButton("Change Button")
-        self.changeButtonMap.setFixedHeight(BASIC_BUTTONS_HEIGHT)
-        self.wc3AppLayout.addWidget(self.changeButtonMap, 3, 0, 1, -1)
+    def _createStopRecordingButton(self):
+        self.stopRecordingButton = QPushButton("Stop Recording")
+        self.stopRecordingButton.setFixedHeight(BASIC_BUTTONS_HEIGHT)
+        self.wc3AppLayout.addWidget(self.stopRecordingButton, 1, 2)
+        self.stopRecordingButton.clicked.connect(self._stopKeyCapture)
+    
+    def _createStageChangesButton(self):
+        self.stageChangesButton = QPushButton("Stage Changes")
+        self.stageChangesButton.setFixedHeight(BASIC_BUTTONS_HEIGHT)
+        self.wc3AppLayout.addWidget(self.stageChangesButton, 2, 0)
+        self.stageChangesButton.clicked.connect(self._buildDataJson)
+
+    def _createRevertChangesButton(self):
+        self.revertChangesButton = QPushButton("Revert Changes")
+        self.revertChangesButton.setFixedHeight(BASIC_BUTTONS_HEIGHT)
+        self.wc3AppLayout.addWidget(self.revertChangesButton, 2, 1)
+        self.revertChangesButton.clicked.connect(self._revertDataChanges)
+
+    def _createApplyChangesButton(self):
+        self.applyChangesButton = QPushButton("Apply Changes")
+        self.applyChangesButton.setFixedHeight(BASIC_BUTTONS_HEIGHT)
+        self.wc3AppLayout.addWidget(self.applyChangesButton, 5, 0, 1, -1)
+        self.applyChangesButton.clicked.connect(self._applyChanges)
 
     # def _createClearButton(self):
     #     self.clearButton = QPushButton("Test_Button")
@@ -267,18 +326,11 @@ class Wc3RemapWindow(QMainWindow):
         self.testButton = QPushButton("Test_Button")
         self.testButton.setFixedHeight(BASIC_BUTTONS_HEIGHT)
         self.wc3AppLayout.addWidget(self.testButton, 4, 1)
-        self.testButton.clicked.connect(self._convertToKeyCodes)
+        self.testButton.clicked.connect(self._applyChanges)
 
-    def _createStopRecordingButton(self):
-        self.stopRecordingButton = QPushButton("Stop Recording")
-        self.stopRecordingButton.setFixedHeight(BASIC_BUTTONS_HEIGHT)
-        self.wc3AppLayout.addWidget(self.stopRecordingButton, 1, 2)
-        self.stopRecordingButton.clicked.connect(self._stopKeyCapture)
     
-    def _createRevertChangesButton(self):
-        self.revertChangesButton = QPushButton("Revert Changes")
-        self.revertChangesButton.setFixedHeight(BASIC_BUTTONS_HEIGHT)
-        self.wc3AppLayout.addWidget(self.revertChangesButton, 1, 3)
+    
+    
 
     #### Functionality ####
     #######################
@@ -326,13 +378,9 @@ class Wc3RemapWindow(QMainWindow):
         self.waitingForKey = False  # Stop capturing keys
 
         keyboard.unhook_all()  # Unhook any keyboard hooks
-        # self.source_saved_combination = ' + '.join(self.sourceRecordedKeys)
-        # self.dest_saved_combination = ' + '.join(self.destRecordedKeys)
+        
 
-        # print(f"Source Saved Combination: {self.source_saved_combination}, Dest Saved Combination: {self.dest_saved_combination}")
-        # self.display.setText("Key capture stopped.")
-
-    def _convertToKeyCodes(self):
+    def _buildDataJson(self):
         # Get the corresponding integer values from the key_codes dictionary
         self.sourceKeyCodes = [str(key_codes[key]) for key in self.sourceRecordedKeys]
         self.destKeyCodes = [str(key_codes[key]) for key in self.destRecordedKeys]
@@ -340,32 +388,45 @@ class Wc3RemapWindow(QMainWindow):
         print(f"Source Keys codes: {";".join(self.sourceKeyCodes)}")
         print(f"Dest Keys codes: {";".join(self.destKeyCodes)}")
 
-        data = {
-            "remapKeys": {
-                "inProcess": []
-            },
-            "remapKeysToText": {
-                "inProcess": []
-            },
-            "remapShortcuts": {
-                "global": [],
-                "appSpecific": []
-            },
-            "remapShortcutsToText": {
-                "global": [],
-                "appSpecific": []
-            }
-        }
-        new_entries = [{"originalKeys": ";".join(self.sourceKeyCodes), "newRemapKeys": ";".join(self.destKeyCodes)}]
+        # new_entries = [{"originalKeys": ";".join(self.sourceKeyCodes), "newRemapKeys": ";".join(self.destKeyCodes)}] ## Ithink it is wrong and should be the source keys to newRemapKeys
+        new_entries = [{"originalKeys": ";".join(self.destKeyCodes), "newRemapKeys": ";".join(self.sourceKeyCodes)}]
 
-        data["remapShortcuts"]["global"].extend(new_entries)
 
-        json_data = json.dumps(data, indent=2)
+        self.data["remapShortcuts"]["global"].extend(new_entries)
+
+        ## Clean keys arrays
+        self.sourceRecordedKeys.clear()
+        self.destRecordedKeys.clear()
+
+        json_data = json.dumps(self.data, indent=2)
 
         # Print the updated JSON
         print(json_data)
 
 
+    def _revertDataChanges(self):
+        self.data = initialData
+        self.display.setText(f"Buttons changes have been reseted.")
+        json_data = json.dumps(self.data, indent=2)
+
+        # Print the updated JSON
+        print(json_data)
+        
+
+    def _applyChanges(self):
+        newKeyMapFile = "./default.json"
+
+        # Writing to JSON file
+        with open(newKeyMapFile, 'w') as json_file:
+            json.dump(self.data, json_file, indent=2)
+        
+        if os.path.isdir(settingsDirPath):
+            ## Build default.json path
+            sourceJsonPath = os.path.join(settingsDirPath, "default.json")
+            if os.path.exists(sourceJsonPath):
+                backupJsonPath = os.path.join(settingsDirPath, "default_old.json")
+                os.rename(sourceJsonPath, backupJsonPath)
+                shutil.copyfile(newKeyMapFile, sourceJsonPath)
 
 
 def main():
