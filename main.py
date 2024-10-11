@@ -29,8 +29,10 @@ from PyQt6.QtWidgets import (
 ###################
 
 ## Paths
-local_app_data = os.getenv('LOCALAPPDATA')
-settingsDirPath = os.path.join(local_app_data, 'Microsoft', 'PowerToys', 'Keyboard Manager')
+
+localAppData = os.getenv('LOCALAPPDATA')
+powerToysSettings = os.path.join(localAppData, 'settings.json')
+settingsDirPath = os.path.join(localAppData, 'Microsoft', 'PowerToys', 'Keyboard Manager')
 
 # originalFile = "$settingsFolderPath\default.json"
 # backupFile = "$settingsFolderPath\default_old.json"
@@ -252,6 +254,8 @@ class Wc3RemapWindow(QMainWindow):
         self._createRevertChangesButton()
         self._createStopRecordingButton()
         self._createStageChangesButton()
+        self._createEnableKboardManager()
+        self._createDisableKboardManager()
         # self._createTestButton()
         # self._createSaveCombinationButton()
 
@@ -315,6 +319,18 @@ class Wc3RemapWindow(QMainWindow):
         self.applyChangesButton.setFixedHeight(BASIC_BUTTONS_HEIGHT)
         self.wc3AppLayout.addWidget(self.applyChangesButton, 5, 0, 1, -1)
         self.applyChangesButton.clicked.connect(self._applyChanges)
+    
+    def _createEnableKboardManager(self):
+        self.EnableKboardManager = QPushButton("Enable Keyboard Manager")
+        self.EnableKboardManager.setFixedHeight(BASIC_BUTTONS_HEIGHT)
+        self.wc3AppLayout.addWidget(self.EnableKboardManager, 6, 0, 1, -1)
+        # self.applyChangesButton.clicked.connect(self._applyChanges)
+
+    def _createDisableKboardManager(self):
+        self.DisableKboardManager = QPushButton("Enable Keyboard Manager")
+        self.DisableKboardManager.setFixedHeight(BASIC_BUTTONS_HEIGHT)
+        self.wc3AppLayout.addWidget(self.DisableKboardManager, 7, 0, 1, -1)
+        # self.applyChangesButton.clicked.connect(self._applyChanges)
 
     # def _createClearButton(self):
     #     self.clearButton = QPushButton("Test_Button")
@@ -597,3 +613,50 @@ key_codes = {
     "alt": 164,
     "right alt": 165,
 }
+
+
+# powerTools = {
+#   "startup": true,
+#   "enabled": {
+#     "AdvancedPaste": false,
+#     "AlwaysOnTop": false,
+#     "Awake": false,
+#     "CmdNotFound": false,
+#     "ColorPicker": false,
+#     "CropAndLock": false,
+#     "EnvironmentVariables": false,
+#     "FancyZones": false,
+#     "File Explorer": true,
+#     "File Locksmith": false,
+#     "FindMyMouse": false,
+#     "Hosts": false,
+#     "Image Resizer": false,
+#     "Keyboard Manager": true,
+#     "Measure Tool": false,
+#     "MouseHighlighter": false,
+#     "MouseJump": false,
+#     "MousePointerCrosshairs": false,
+#     "MouseWithoutBorders": false,
+#     "NewPlus": false,
+#     "Peek": false,
+#     "PowerRename": false,
+#     "PowerToys Run": false,
+#     "QuickAccent": false,
+#     "RegistryPreview": false,
+#     "Shortcut Guide": false,
+#     "TextExtractor": false,
+#     "Video Conference": false,
+#     "Workspaces": false
+#   },
+#   "is_elevated": false,
+#   "run_elevated": false,
+#   "show_new_updates_toast_notification": true,
+#   "download_updates_automatically": true,
+#   "show_whats_new_after_updates": true,
+#   "enable_experimentation": true,
+#   "is_admin": true,
+#   "enable_warnings_elevated_apps": true,
+#   "theme": "system",
+#   "system_theme": "dark",
+#   "powertoys_version": "v0.85.1"
+# }
