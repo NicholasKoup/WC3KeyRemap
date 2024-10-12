@@ -32,7 +32,8 @@ from PyQt6.QtWidgets import (
 
 localAppData = os.getenv('LOCALAPPDATA')
 powerToysSettings = os.path.join(localAppData, 'settings.json')
-settingsDirPath = os.path.join(localAppData, 'Microsoft', 'PowerToys', 'Keyboard Manager')
+keyboardManagerSettingsDirPath = os.path.join(localAppData, 'Microsoft', 'PowerToys', 'Keyboard Manager')
+powerToysSettingsFilePath = os.path.join(localAppData, 'Microsoft', 'PowerToys', 'settings.json')
 
 # originalFile = "$settingsFolderPath\default.json"
 # backupFile = "$settingsFolderPath\default_old.json"
@@ -321,16 +322,16 @@ class Wc3RemapWindow(QMainWindow):
         self.applyChangesButton.clicked.connect(self._applyChanges)
     
     def _createEnableKboardManager(self):
-        self.EnableKboardManager = QPushButton("Enable Keyboard Manager")
-        self.EnableKboardManager.setFixedHeight(BASIC_BUTTONS_HEIGHT)
-        self.wc3AppLayout.addWidget(self.EnableKboardManager, 6, 0, 1, -1)
-        # self.applyChangesButton.clicked.connect(self._applyChanges)
+        self.enableKboardManager = QPushButton("Enable Keyboard Manager")
+        self.enableKboardManager.setFixedHeight(BASIC_BUTTONS_HEIGHT)
+        self.wc3AppLayout.addWidget(self.enableKboardManager, 6, 0, 1, -1)
+        self.enableKboardManager.clicked.connect(self._enableKeyboardManager)
 
     def _createDisableKboardManager(self):
-        self.DisableKboardManager = QPushButton("Enable Keyboard Manager")
-        self.DisableKboardManager.setFixedHeight(BASIC_BUTTONS_HEIGHT)
-        self.wc3AppLayout.addWidget(self.DisableKboardManager, 7, 0, 1, -1)
-        # self.applyChangesButton.clicked.connect(self._applyChanges)
+        self.disableKboardManager = QPushButton("Disable Keyboard Manager")
+        self.disableKboardManager.setFixedHeight(BASIC_BUTTONS_HEIGHT)
+        self.wc3AppLayout.addWidget(self.disableKboardManager, 7, 0, 1, -1)
+        self.disableKboardManager.clicked.connect(self._disablePowerToysServices)
 
     # def _createClearButton(self):
     #     self.clearButton = QPushButton("Test_Button")
@@ -349,7 +350,7 @@ class Wc3RemapWindow(QMainWindow):
     
 
     #### Functionality ####
-    #######################
+    #######################  ## To Do add preview changes before applying
 
     def _installPowerToys(self):
         command = ["winget", "install", "--disable-interactivity", "--id", "Microsoft.PowerToys", "--source", "winget"]
@@ -436,13 +437,69 @@ class Wc3RemapWindow(QMainWindow):
         with open(newKeyMapFile, 'w') as json_file:
             json.dump(self.data, json_file, indent=2)
         
-        if os.path.isdir(settingsDirPath):
+        if os.path.isdir(keyboardManagerSettingsDirPath):
             ## Build default.json path
-            sourceJsonPath = os.path.join(settingsDirPath, "default.json")
+            sourceJsonPath = os.path.join(keyboardManagerSettingsDirPath, "default.json")
             if os.path.exists(sourceJsonPath):
-                backupJsonPath = os.path.join(settingsDirPath, "default_old.json")
+                backupJsonPath = os.path.join(keyboardManagerSettingsDirPath, "default_old.json")
                 os.rename(sourceJsonPath, backupJsonPath)
                 shutil.copyfile(newKeyMapFile, sourceJsonPath)
+
+    def _disablePowerToysServices(self):
+        
+        with open(powerToysSettingsFilePath, 'r') as powerToysSettings:
+            json_data = json.load(powerToysSettings)
+        
+        for service in json_data['enabled']:
+            json_data['enabled'][service] = False
+            data = json.dumps(json_data, indent=2)
+            print(data)
+            # print(service)
+        
+        with open(powerToysSettingsFilePath, 'w') as powerToysSettings:
+            json.dump(json_data, powerToysSettings, indent=2)
+        
+        try:
+            # Run the 'tasklist' command to get all running processes
+            result = subprocess.run(["tasklist"], capture_output=True, text=True)
+            os.system(f"taskkill /IM PowerToys.exe /F")
+            # Print the output, which contains the list of processes
+            # print(result.stdout)
+        except subprocess.CalledProcessError as e:
+            print(f"Error retrieving processes: {e}")
+
+
+    def _enableKeyboardManager(self):
+        with open(powerToysSettingsFilePath, 'r') as powerToysSettings:
+            json_data = json.load(powerToysSettings)
+        
+            for service in json_data['enabled']:
+                if service == 'Keyboard Manager':
+                    json_data['enabled'][service] = True
+        
+        with open(powerToysSettingsFilePath, 'w') as powerToysSettings:
+            json.dump(json_data, powerToysSettings, indent=2)
+            data = json.dumps(json_data, indent=2)
+            print(data)
+
+            # try:
+            #     # Run the 'tasklist' command to get all running processes
+            #     result = subprocess.run(["tasklist"], capture_output=True, text=True)
+            #     os.system(f"taskkill /IM PowerToys.exe /F")
+            #     # Print the output, which contains the list of processes
+            #     print(result.stdout)
+            # except subprocess.CalledProcessError as e:
+            #     print(f"Error retrieving processes: {e}")
+        time.sleep(5)    
+
+        try:
+            # Run the .exe file
+            result = subprocess.Popen([r'C:\Users\looma\AppData\Local\PowerToys\PowerToys.exe'])
+            print(result)
+        except Exception as err:
+            print(err)
+
+            
 
 
 def main():
