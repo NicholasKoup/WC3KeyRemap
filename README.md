@@ -22,12 +22,8 @@ This program helps you remap the keys for the Warcraft 3 game using Microsoft Po
 1. [Overview](#overview)
 2. [Installation Instructions](#installation-instructions)
 3. [Usage Instructions](#usage-instructions)
-4. [Features](#features)
-5. [Configuration](#configuration)
-6. [Troubleshooting](#troubleshooting)
-7. [Contributing](#contributing)
-8. [License](#license)
-9. [Contact Information](#contact-information)
+4. [License](#license)
+5. [Contact Information](#contact-information)
 
 ## Overview
 
@@ -119,15 +115,6 @@ To remap your keys, follow these steps:
   - Click on the **"Exit"** button.
 
 
-## Features
-... (List of features)
-
-## Troubleshooting
-... (Troubleshooting tips)
-
-## Contributing
-... (How to contribute)
-
 ## License
 MIT License
 
@@ -143,5 +130,5 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 ## Contact Information
 For any questions, suggestions, or feedback regarding WC3KeyRemap, please feel free to reach out through the following channels:
 
-- **Email**: [your.email@example.com](mailto:your.email@example.com)
-- **GitHub Issues**: [Report an issue](https://github.com/yourusername/WC3KeyRemap/issues) for bug reports or feature requests.
+- **Email**: nickouparousos@gmail.com
+- **GitHub Issues**: [Report an issue](https://github.com/NicholasKoup/WC3KeyRemap/issues) for bug reports or feature requests.
