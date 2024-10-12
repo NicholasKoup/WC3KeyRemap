@@ -350,7 +350,7 @@ class Wc3RemapWindow(QMainWindow):
     
 
     #### Functionality ####
-    #######################  ## To Do add preview changes before applying
+    #######################  ## To Do add preview changes before applying, REVERT CHANGES WORKS ONLY FOR STAGING PHASE SHOULD ADD A BUTTON TO RESET TO FACTORY DEFAULT REMAPS
 
     def _installPowerToys(self):
         command = ["winget", "install", "--disable-interactivity", "--id", "Microsoft.PowerToys", "--source", "winget"]
