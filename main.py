@@ -491,7 +491,11 @@ class Wc3RemapWindow(QMainWindow):
             print(data)
             # print(service)
         
-        with open(powerToysSettingsFilePath, 'w') as powerToysSettings:
+        for systemStartup in json_data:
+            if systemStartup == 'startup':
+                json_data['startup'] = False 
+
+        with open(powerToysSettingsFilePath, 'w') as powerToysSettings: ## Test it if it works
             json.dump(json_data, powerToysSettings, indent=2)
         
         try:
