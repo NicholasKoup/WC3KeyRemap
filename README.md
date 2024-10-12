@@ -49,7 +49,7 @@ To get started with WC3KeyRemap, follow these steps:
 **Note**: This program is designed to work only on Windows operating systems.
 
 
-1. **Download the Executable**: Download the latest version of WC3KeyRemap from the [Releases section](https://github.com/yourusername/WC3KeyRemap/releases/latest) or directly [here](https://github.com/yourusername/WC3KeyRemap/releases/download/v1.0.0/main.exe)
+1. **Download the Executable**: Download the latest version of WC3KeyRemap from the [Releases section](https://github.com/NicholasKoup/WC3KeyRemap/releases) or directly [here](https://github.com/NicholasKoup/WC3KeyRemap/releases/download/v0.1/WC3KeyRemap.exe)
 
 2. **Run the Program**: Double-click the `WC3KeyRemap.exe` file to launch the application. 
 
