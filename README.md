@@ -8,7 +8,7 @@ WC3KeyRemap is a versatile utility designed to streamline the key remapping proc
 
     3.Easy Disabling of PowerToys: Once you’ve finished your gaming session, WC3KeyRemap completely disables PowerToys, restoring your keyboard to its default settings.
 
-With WC3KeyRemap, you can customize your keyboard layout effortlessly, optimizing your gameplay experience in Warcraft 3 while ensuring that other features of PowerToys do not interfere.
+With WC3KeyRemap, you can customize your keyboard layout effortlessly, especially focusing on inventory hotkey customization, optimizing your gameplay experience in Warcraft 3 while ensuring that other features of PowerToys do not interfere.
 
 
 # WC3KeyRemap
@@ -35,7 +35,7 @@ WC3KeyRemap is a versatile utility built with Python, designed to streamline the
 
 3. **Easy Disabling of PowerToys**: Once you’ve finished your gaming session, WC3KeyRemap completely disables PowerToys, restoring your keyboard to its default settings.
 
-With WC3KeyRemap, you can customize your keyboard layout effortlessly, optimizing your gameplay experience in Warcraft 3 while ensuring that other features of PowerToys do not interfere.
+With WC3KeyRemap, you can customize your keyboard layout effortlessly, and its ability to specifically remap inventory hotkeys optimizes your gameplay experience in Warcraft 3 while ensuring that other features of PowerToys do not interfere.
 
 
 ## Installation Instructions
