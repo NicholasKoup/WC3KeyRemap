@@ -2,3 +2,9 @@
 /Scripts
 /Include
 /pyenv.cfg
+/dist
+/build
+/main copy.py
+/test.py
+/settings_mine.json
+/settings.json
