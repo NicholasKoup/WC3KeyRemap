@@ -12,9 +12,8 @@ import json
 import copy
 import shutil
 
-
-
-from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QWidget, QLineEdit, QPushButton, QMenu
+from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QWidget, QLineEdit, QPushButton, QMenu, QMessageBox
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QHBoxLayout,
@@ -221,6 +220,41 @@ BASIC_BUTTONS_HEIGHT = 40
 app = QApplication([])
 
 
+# class PopupWindow(QMainWindow):
+#     def __init__(self):
+#         super().__init__()
+
+# #         wid = QtGui.QWidget(self)
+# # self.setCentralWidget(wid)
+# # layout = QtGui.QVBoxLayout()
+# # wid.setLayout(layout)
+
+#         self.setWindowTitle("Popup Window")  # Set the title of the popup window
+#         self.setGeometry(100, 100, 250, 100)  # Set the size of the popup window
+
+#         self.popUpLayout = QGridLayout()
+
+#         popupWidget = QWidget(self)
+#         popupWidget.setLayout(self.popUpLayout)
+#         self.setCentralWidget(popupWidget)
+
+
+#         # Create a label to display text
+#         label = QLabel("This is a popup window!", self)
+
+class PopupWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Popup Window")  # Set the title of the popup window
+        self.setGeometry(100, 100, 250, 100)  # Set the size of the popup window
+
+        self.popUpLayout = QGridLayout()
+
+        popupWidget = QWidget(self)
+        popupWidget.setLayout(self.popUpLayout)
+        # self.setCentralWidget(popupWidget)
+
 class Wc3RemapWindow(QMainWindow):
 
     def __init__(self):
@@ -252,28 +286,37 @@ class Wc3RemapWindow(QMainWindow):
         self._createInstallPowerToysButton()
         self._createCaptureInputButton()
         self._createApplyChangesButton()
-        self._createRevertChangesButton()
         self._createStopRecordingButton()
         self._createStageChangesButton()
+        self._createRevertChangesButton()
+        self._createResetFactoryDefaultsButton()
         self._createEnableKboardManager()
         self._createDisableKboardManager()
         # self._createTestButton()
         # self._createSaveCombinationButton()
 
 
-        # self.keyState = set()
-        self.keyState = list()
+        self.keyState = set()
+        self.keyStateList = list()
+        # self.keyState = list()
         self.sourceRecordedKeys = []
         self.destRecordedKeys = []
-        
+        self.previewKeySourceMapsList = []
+        self.previewKeyDestMapsList = []
+            
 
     #### Display Elements ####
     ##########################
 
-    ## Menu Bar
     def _createMainMenu(self):
         mainMenu = self.menuBar().addMenu("&Menu")
         mainMenu.addAction("&Exit", self.close)
+        previewMenu = self.menuBar().addMenu("&Preview_Changes")
+        # openPreviewAction = QAction(self._createPreviewWindow, self)
+        # previewMenu.addAction(openPreviewAction)
+        open_popup_action = QAction("Open Popup", self)
+        open_popup_action.triggered.connect(self._createPreviewWindow)
+        previewMenu.addAction(open_popup_action)
         helpMenu = self.menuBar().addMenu("&Help")
         helpMenu.addAction("&About", self.close)
 
@@ -314,6 +357,12 @@ class Wc3RemapWindow(QMainWindow):
         self.revertChangesButton.setFixedHeight(BASIC_BUTTONS_HEIGHT)
         self.wc3AppLayout.addWidget(self.revertChangesButton, 2, 1)
         self.revertChangesButton.clicked.connect(self._revertDataChanges)
+    
+    def _createResetFactoryDefaultsButton(self):
+        self.resetFactoryDefaultsButton = QPushButton("Reset Factory Defaults")
+        self.resetFactoryDefaultsButton.setFixedHeight(BASIC_BUTTONS_HEIGHT)
+        self.wc3AppLayout.addWidget(self.resetFactoryDefaultsButton, 2, 2)
+        self.resetFactoryDefaultsButton.clicked.connect(self._revertToFactoryDefaults)
 
     def _createApplyChangesButton(self):
         self.applyChangesButton = QPushButton("Apply Changes")
@@ -350,7 +399,8 @@ class Wc3RemapWindow(QMainWindow):
     
 
     #### Functionality ####
-    #######################  ## To Do add preview changes before applying, REVERT CHANGES WORKS ONLY FOR STAGING PHASE SHOULD ADD A BUTTON TO RESET TO FACTORY DEFAULT REMAPS
+    #######################  ## To Do add preview changes before applying, REVERT CHANGES WORKS ONLY FOR STAGING PHASE SHOULD ADD A BUTTON TO RESET TO FACTORY DEFAULT REMAPS, space does not work when capturing
+
 
     def _installPowerToys(self):
         command = ["winget", "install", "--disable-interactivity", "--id", "Microsoft.PowerToys", "--source", "winget"]
@@ -375,20 +425,24 @@ class Wc3RemapWindow(QMainWindow):
     def _captureKeys(self, event):
         if event.event_type == keyboard.KEY_DOWN:
             # if not self.sourceRecordedKeys:
+            time.sleep(0.20)
+            self.keyState.add(event.name.lower()) ## Using set to have unique keys
+            self.keyStateList = list(self.keyState)
+            # self.keyStateList.sort()
             # self.keyState.append(event.name.lower())  # Add the key to the set
-            time.sleep(0.15)
-            self.keyState.append(event.name.lower())  # Add the key to the set
-            self.display.setText(f"Press Keys: {', '.join(self.keyState)}")
+            self.display.setText(f"Press Keys: {', '.join(self.keyStateList)}")
             # elif not self.destRecordedKeys:
             #     self.destRecordedKeys.append(event.name.lower())  # Add the key to the set
             #     self.display.setText(f"Dest Keys pressed: {', '.join(self.keyState)}")
     
     def _stopKeyCapture(self):
         if not self.sourceRecordedKeys:
+            self.previewKeySourceMapsList.append(self.keyState.copy())
             self.sourceRecordedKeys = self.keyState.copy()
             self.display.setText(f"Source Keys pressed: {' + '.join(self.sourceRecordedKeys)}")
             self.keyState.clear()
         else:
+            self.previewKeyDestMapsList.append(self.keyState.copy())
             self.destRecordedKeys = self.keyState.copy()
             self.display.setText(f"Dest Keys pressed: {' + '.join(self.destRecordedKeys)}")
             self.keyState.clear()
@@ -426,6 +480,9 @@ class Wc3RemapWindow(QMainWindow):
         self.display.setText(f"Buttons changes have been reseted.")
         json_data = json.dumps(self.data, indent=2)
 
+        self.previewKeySourceMapsList.clear()
+        self.previewKeyDestMapsList.clear()
+
         # Print the updated JSON
         print(json_data)
         
@@ -444,6 +501,22 @@ class Wc3RemapWindow(QMainWindow):
                 backupJsonPath = os.path.join(keyboardManagerSettingsDirPath, "default_old.json")
                 os.rename(sourceJsonPath, backupJsonPath)
                 shutil.copyfile(newKeyMapFile, sourceJsonPath)
+    
+    def _revertToFactoryDefaults(self):
+        self.data = initialData
+        self.display.setText(f"Buttons changes have been reseted.")
+        json_data = json.dumps(self.data, indent=2)
+
+        defaultKeyMapFile = "./default.json"
+
+        # Writing to JSON file
+        with open(defaultKeyMapFile, 'w') as json_file:
+            json.dump(self.data, json_file, indent=2)
+
+        sourceJsonPath = os.path.join(keyboardManagerSettingsDirPath, "default.json")
+        if os.path.exists(sourceJsonPath):
+            os.remove(sourceJsonPath)
+            shutil.copyfile(defaultKeyMapFile)
 
     def _disablePowerToysServices(self):
         
@@ -498,7 +571,29 @@ class Wc3RemapWindow(QMainWindow):
             print(result)
         except Exception as err:
             print(err)
+    
 
+    def _createPreviewWindow(self):
+        # Function to create the popup window
+        # popupWindow = PopupWindow()  # Create an instance of the PopupWindow
+        # popupWindow.show
+        previewWindow = QMessageBox(self)
+        text = ""
+        for i in range(len(self.previewKeySourceMapsList)):
+            set1 = self.previewKeySourceMapsList[i]
+            set2 = self.previewKeyDestMapsList[i]
+            set1 = list(set1)
+            set2 = list(set2)
+
+            # Join each set into a string for both lists and format it
+            text += f'{" + ".join(set1)}      >      {" + ".join(set2)}\n'
+
+        # Set the message box text to the constructed string
+        previewWindow.setText(text)
+        # Join each sublist into a string, and add a newline after each list
+            # text += f'Key Maps: {", ".join(keyCombination)}\n'
+        # previewWindow.setText(text)
+        previewWindow.exec()
             
 
 

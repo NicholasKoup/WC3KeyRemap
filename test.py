@@ -1,76 +1,59 @@
 ﻿import sys
-import subprocess
-import threading
-import keyboard
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QWidget, QLineEdit, QPushButton, QGridLayout
+from PyQt6.QtWidgets import QApplication, QMainWindow, QMenu, QMenuBar, QVBoxLayout, QLabel, QDialog, QPushButton
+from PyQt6.QtGui import QAction
+from PyQt6.QtCore import Qt  # Import Qt for alignment flags
 
-key_codes = {
-    "backspace": 8,
-    "tab": 9,
-    "enter": 13,
-    "ShiftKey": 16,
-    "ControlKey": 17,
-    "menu": 18,
-    "caps lock": 20,
-    "esc": 27,
-    "space": 32,
-    "a": 65,
-    "b": 66,
-    "c": 67,
-    # Add other keys as needed...
-}
-
-# Create an instance of QApplication
-app = QApplication([])
-
-class Wc3RemapWindow(QMainWindow):
+class PopupWindow(QDialog):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Wc3 Remap")
-        self.setFixedSize(600, 400)
+        self.setWindowTitle("Popup Window")
+        self.setGeometry(100, 100, 250, 100)
 
-        # Layout Setup
-        self.wc3AppLayout = QGridLayout()
-        centralWidget = QWidget(self)
-        centralWidget.setLayout(self.wc3AppLayout)
-        self.setCentralWidget(centralWidget)
+        # Create a label to display text
+        label = QLabel("This is a popup window!", self)
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # GUI Elements
-        self.display = QLineEdit()
-        self.display.setFixedHeight(40)
-        self.display.setAlignment(Qt.AlignmentFlag.AlignRight)
-        self.display.setReadOnly(True)
-        self.wc3AppLayout.addWidget(self.display, 0, 0, 1, -1)
+        # Create a close button
+        close_button = QPushButton("Close", self)
+        close_button.clicked.connect(self.close)
 
-        self.captureButton = QPushButton("Capture Keys")
-        self.captureButton.clicked.connect(self._startKeyCapture)
-        self.wc3AppLayout.addWidget(self.captureButton, 1, 0)
+        # Layout for the popup window
+        layout = QVBoxLayout()
+        layout.addWidget(label)
+        layout.addWidget(close_button)
 
-        self.keyState = set()  # To track currently pressed keys
+        self.setLayout(layout)
 
-    def _startKeyCapture(self):
-        self.display.setText("Press keys (Esc to stop)...")
-        self.keyState.clear()
-        keyboard.hook(self._on_key_event)  # Start capturing key events
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Main Window")
+        self.setGeometry(100, 100, 400, 300)
 
-    def _on_key_event(self, event):
-        if event.event_type == keyboard.KEY_DOWN:
-            self.keyState.add(event.name)  # Add the key to the set
-            self.display.setText(f"Currently pressed: {', '.join(self.keyState)}")
-        elif event.event_type == keyboard.KEY_UP:
-            self.keyState.discard(event.name)  # Remove the key from the set
-            self.display.setText(f"Currently pressed: {', '.join(self.keyState)}")
+        # Create a menu bar
+        self.menu_bar = QMenuBar(self)
+        self.setMenuBar(self.menu_bar)
 
-        # Check for specific combinations (e.g., Shift + A)
-        if 'shift' in self.keyState and 'a' in self.keyState:
-            self.display.setText("Shift + A is pressed!")
+        # Create a 'File' menu
+        file_menu = QMenu("File", self.menu_bar)
 
-def main():
-    wc3RemapApp = QApplication([])
-    wc3RemapWindow = Wc3RemapWindow()
-    wc3RemapWindow.show()
-    sys.exit(wc3RemapApp.exec())
+        # Create a menu item to open the popup
+        open_popup_action = QAction("Open Popup", self)
+        open_popup_action.triggered.connect(self.open_popup)  # Connect the action to the method
 
-if __name__ == "__main__":
-    main()
+        # Add the menu item to the file menu
+        file_menu.addAction(open_popup_action)
+
+        # Add the file menu to the menu bar
+        self.menu_bar.addMenu(file_menu)
+
+    def open_popup(self):
+        popup = PopupWindow()  # Create an instance of the PopupWindow
+        popup.exec()  # Show the popup window
+
+# Main execution
+if __name__ == '__main__':
+    app = QApplication(sys.argv)  # Create an instance of QApplication
+    main_window = MainWindow()  # Create the main window
+    main_window.show()  # Show the main window
+    sys.exit(app.exec())  # Start the application
