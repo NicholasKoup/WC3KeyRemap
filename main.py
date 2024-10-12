@@ -1,7 +1,3 @@
-# hello.py
-
-"""Simple Hello, World example with PyQt6."""
-
 import sys
 import os
 import subprocess
@@ -220,40 +216,6 @@ BASIC_BUTTONS_HEIGHT = 40
 app = QApplication([])
 
 
-# class PopupWindow(QMainWindow):
-#     def __init__(self):
-#         super().__init__()
-
-# #         wid = QtGui.QWidget(self)
-# # self.setCentralWidget(wid)
-# # layout = QtGui.QVBoxLayout()
-# # wid.setLayout(layout)
-
-#         self.setWindowTitle("Popup Window")  # Set the title of the popup window
-#         self.setGeometry(100, 100, 250, 100)  # Set the size of the popup window
-
-#         self.popUpLayout = QGridLayout()
-
-#         popupWidget = QWidget(self)
-#         popupWidget.setLayout(self.popUpLayout)
-#         self.setCentralWidget(popupWidget)
-
-
-#         # Create a label to display text
-#         label = QLabel("This is a popup window!", self)
-
-class PopupWindow(QWidget):
-    def __init__(self):
-        super().__init__()
-
-        self.setWindowTitle("Popup Window")  # Set the title of the popup window
-        self.setGeometry(100, 100, 250, 100)  # Set the size of the popup window
-
-        self.popUpLayout = QGridLayout()
-
-        popupWidget = QWidget(self)
-        popupWidget.setLayout(self.popUpLayout)
-        # self.setCentralWidget(popupWidget)
 
 class Wc3RemapWindow(QMainWindow):
 
