@@ -371,16 +371,19 @@ class Wc3RemapWindow(QMainWindow):
         # Check if the command was successful
         if result.returncode == 0:
             self.display.setText("PowerToys installed successfully!")
+            self.display.setStyleSheet("font-weight: bold;")
             # print("PowerToys installed successfully!")
             # print(result.stdout)  # Output from the command
         else:
             self.display.setText(f"Failed to install PowerToys. Error code: {result.returncode}")
+            self.display.setStyleSheet("font-weight: bold;")
             print(f"Failed to install PowerToys. Error code")
             # print(result.stderr)  # Error output from the command
     
 
     def _startKeyCapture(self):
-        self.display.setText("Press keys (Esc to stop)...")
+        self.display.setText("Press keys (Click Stop Recording to stop)...")
+        self.display.setStyleSheet("font-weight: bold;")
         self.keyState.clear()
         keyboard.hook(self._captureKeys)  # Start capturing key events
 
@@ -393,6 +396,7 @@ class Wc3RemapWindow(QMainWindow):
             # self.keyStateList.sort()
             # self.keyState.append(event.name.lower())  # Add the key to the set
             self.display.setText(f"Press Keys: {', '.join(self.keyStateList)}")
+            self.display.setStyleSheet("font-weight: bold;")
             # elif not self.destRecordedKeys:
             #     self.destRecordedKeys.append(event.name.lower())  # Add the key to the set
             #     self.display.setText(f"Dest Keys pressed: {', '.join(self.keyState)}")
@@ -402,11 +406,13 @@ class Wc3RemapWindow(QMainWindow):
             self.previewKeySourceMapsList.append(self.keyState.copy())
             self.sourceRecordedKeys = self.keyState.copy()
             self.display.setText(f"Source Keys pressed: {' + '.join(self.sourceRecordedKeys)}")
+            self.display.setStyleSheet("font-weight: bold;")
             self.keyState.clear()
         else:
             self.previewKeyDestMapsList.append(self.keyState.copy())
             self.destRecordedKeys = self.keyState.copy()
             self.display.setText(f"Dest Keys pressed: {' + '.join(self.destRecordedKeys)}")
+            self.display.setStyleSheet("font-weight: bold;")
             self.keyState.clear()
         self.waitingForKey = False  # Stop capturing keys
 
@@ -440,6 +446,7 @@ class Wc3RemapWindow(QMainWindow):
     def _revertDataChanges(self):
         self.data = initialData
         self.display.setText(f"Buttons changes have been reseted.")
+        self.display.setStyleSheet("font-weight: bold;")
         json_data = json.dumps(self.data, indent=2)
 
         self.previewKeySourceMapsList.clear()
@@ -467,6 +474,7 @@ class Wc3RemapWindow(QMainWindow):
     def _revertToFactoryDefaults(self):
         self.data = initialData
         self.display.setText(f"Buttons changes have been reseted.")
+        self.display.setStyleSheet("font-weight: bold;")
         json_data = json.dumps(self.data, indent=2)
 
         defaultKeyMapFile = "./default.json"
@@ -545,14 +553,15 @@ class Wc3RemapWindow(QMainWindow):
         # popupWindow.show
         previewWindow = QMessageBox(self)
         text = ""
-        for i in range(len(self.previewKeySourceMapsList)):
-            set1 = self.previewKeySourceMapsList[i]
-            set2 = self.previewKeyDestMapsList[i]
-            set1 = list(set1)
-            set2 = list(set2)
+        if len(self.previewKeySourceMapsList) != 0 and len(self.previewKeyDestMapsList) != 0:
+            for i in range(len(self.previewKeySourceMapsList)):
+                set1 = self.previewKeySourceMapsList[i]
+                set2 = self.previewKeyDestMapsList[i]
+                set1 = list(set1)
+                set2 = list(set2)
 
-            # Join each set into a string for both lists and format it
-            text += f'{" + ".join(set1)}      >      {" + ".join(set2)}\n'
+                # Join each set into a string for both lists and format it
+                text += f'{" + ".join(set1)}      >      {" + ".join(set2)}\n'
 
         # Set the message box text to the constructed string
         previewWindow.setText(text)
