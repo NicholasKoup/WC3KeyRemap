@@ -280,7 +280,7 @@ class Wc3RemapWindow(QMainWindow):
         open_popup_action.triggered.connect(self._createPreviewWindow)
         previewMenu.addAction(open_popup_action)
         helpMenu = self.menuBar().addMenu("&Help")
-        helpMenu.addAction("&About", self.close)
+        helpMenu.addAction("&About", self._createAboutWindow)
 
     ## Display 
     def _createConsoleDisplay(self):
@@ -565,10 +565,68 @@ class Wc3RemapWindow(QMainWindow):
 
         # Set the message box text to the constructed string
         previewWindow.setText(text)
+        previewWindow.setStyleSheet("font-weight: bold;")
         # Join each sublist into a string, and add a newline after each list
             # text += f'Key Maps: {", ".join(keyCombination)}\n'
         # previewWindow.setText(text)
         previewWindow.exec()
+
+    def _createAboutWindow(self):
+        # Function to create the popup window
+        # popupWindow = PopupWindow()  # Create an instance of the PopupWindow
+        # popupWindow.show
+        aboutWindow = QMessageBox(self)
+        text = """To remap your keys, follow these steps:
+            Step 1: Capture Input
+                Click the "Capture Input" button.
+                Press the native key or key combination that you want to change.
+                Click "Stop Recording" once you’ve captured the native input.
+
+            Step 2: Capture the Replacement Key
+                Click "Capture Input" again to begin capturing the key or key combination you want to use as a replacement.
+                Press the new key or combination you wish to assign.
+                Click "Stop Capture" to finalize your selection.
+
+            Step 3: Stage Changes
+                Click the "Stage Changes" button. This is a crucial step that prepares the changes for preview.
+
+            Step 4: Preview Changes
+                Use the menu bar preview to see the changes you’re about to make. This lets you confirm that everything looks correct.
+
+            Step 5: Revert Changes (if needed)
+                If you want to discard the changes and start over, click the "Revert Changes" button.
+
+            Step 6: Apply Changes
+                If you’re satisfied with the changes, click the "Apply Changes" button. This will save your changes to the Keyboard Manager JSON file.
+
+            Step 7: Enable Keyboard Manager
+                After applying the changes, click the "Enable Keyboard Manager" button to activate the remapped keys.
+
+            Step 8: Disable Keyboard Manager
+                Once you finish your gaming session, click the "Disable Keyboard Manager" button to restore the default keyboard settings.
+
+            Additional Options
+                Factory Reset: If you want to delete all changes and restore the Keyboard Manager file to its original state, click the "Factory Reset" button. This will remove any customizations and replace the current JSON file with the native one.
+
+            4. Enabling and Disabling the Keyboard Manager
+                To enable the remapped keys for your gaming session:
+                    Click the "Enable Keyboard Manager" button in the main interface.
+                After finishing your gameplay session, you can disable the Keyboard Manager:
+                    Click the "Disable Keyboard Manager" button to turn off the custom shortcuts and restore your keyboard to default settings
+
+            5. Exiting the Program
+                To exit the WC3KeyRemap application:
+                    Click on the "Exit" button.
+            """
+                    
+
+        # Set the message box text to the constructed string
+        aboutWindow.setText(text)
+        aboutWindow.setStyleSheet("font-weight: bold;")
+        # Join each sublist into a string, and add a newline after each list
+            # text += f'Key Maps: {", ".join(keyCombination)}\n'
+        # previewWindow.setText(text)
+        aboutWindow.exec()
             
 
 
