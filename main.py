@@ -361,7 +361,7 @@ class Wc3RemapWindow(QMainWindow):
     
 
     #### Functionality ####
-    #######################  ## To Do add preview changes before applying, REVERT CHANGES WORKS ONLY FOR STAGING PHASE SHOULD ADD A BUTTON TO RESET TO FACTORY DEFAULT REMAPS, space does not work when capturing
+    #######################  ## To Do add preview changes before applying, REVERT CHANGES WORKS ONLY FOR STAGING PHASE SHOULD ADD A BUTTON TO RESET TO FACTORY DEFAULT REMAPS, space does not work when capturing Add when enable and disable powerytoys a message to display
 
 
     def _installPowerToys(self):
